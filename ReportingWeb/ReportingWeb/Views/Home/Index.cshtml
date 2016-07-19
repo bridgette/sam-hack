@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section Scripts {
+
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="~/Content/CustomCharting.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/GetEvents",
+                success: function (data) {
+                    $(data).each(function (index) {
+                        var partitionKey = data[index].PartitionKey;
+                        var rowKey = data[index].RowKey;
+
+                        var option = $('<option>')
+                        .attr('value', partitionKey)
+                        .text(rowKey);
+
+                        $('#inputForm [name="EventId"]').append(option);
+                    });
+                }
+            });
+
+            $('.datepicker').datepicker();
+
+            $('#inputForm [name="EventId"]').bind('change', getDataDrawChart);
+            $('#searchButton').bind('click', getDataDrawChart);
+            $('#downloadCSV').bind('click', exportActionTable);
+        });
+
+    </script>
+}
+
+<br /><br /><br />
+
+<div class="container">
+    <form id="inputForm">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="control-label">Event:
+                    <select name="EventId" class="form-control">
+                        <option></option>
+                    </select>
+                </label>
+            </div>
+            <div class="col-md-3">
+                <label class="control-label">Start Date: <input type="datetime" name="StartDate" class="datepicker form-control" /></label>
+            </div>
+            <div class="col-md-3">
+                <label class="control-label">End Date: <input type="datetime" name="EndDate" class="datepicker form-control" /></label>
+            </div>
+            <div class="col-md-2">
+                <label></label>
+                <button id="searchButton" class="form-control" type="button">Search</button>
+            </div>
+            <div class="col-md-2">
+                <label></label>
+                <button id="downloadCSV" class="form-control" style="display: none;" type="button">Download as CSV</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <div id="chartContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
+    <div class="row">
+        <div id="chartContainer2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
+</div>
