@@ -19,7 +19,7 @@ namespace TableStorageClient
             CreateTable(tableName);
 
             // Create a new customer entity.
-            CustomerEntity customer1 = new CustomerEntity("Harp", "Walter");
+            ImageEntity customer1 = new ImageEntity("Harp", "Walter");
             customer1.Email = "Walter@contoso.com";
             customer1.PhoneNumber = "425-555-0101";
 
@@ -71,10 +71,10 @@ namespace TableStorageClient
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
 
             // Construct the query operation for all customer entities where PartitionKey="Smith".
-            TableQuery<CustomerEntity> query = new TableQuery<CustomerEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName));
+            TableQuery<ImageEntity> query = new TableQuery<ImageEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName));
 
             // Print the fields for each customer.
-            foreach (CustomerEntity entity in table.ExecuteQuery(query))
+            foreach (ImageEntity entity in table.ExecuteQuery(query))
             {
                 Console.WriteLine("{0}, {1}\t{2}\t{3}", entity.PartitionKey, entity.RowKey,
                     entity.Email, entity.PhoneNumber);
@@ -94,14 +94,14 @@ namespace TableStorageClient
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
 
             // Create the table query.
-            TableQuery<CustomerEntity> rangeQuery = new TableQuery<CustomerEntity>().Where(
+            TableQuery<ImageEntity> rangeQuery = new TableQuery<ImageEntity>().Where(
                 TableQuery.CombineFilters(
                     TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName),
                     TableOperators.And,
                     TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, subKeyName)));
 
             // Loop through the results, displaying information about the entity.
-            foreach (CustomerEntity entity in table.ExecuteQuery(rangeQuery))
+            foreach (ImageEntity entity in table.ExecuteQuery(rangeQuery))
             {
                 Console.WriteLine("{0}, {1}\t{2}\t{3}", entity.PartitionKey, entity.RowKey,
                     entity.Email, entity.PhoneNumber);
