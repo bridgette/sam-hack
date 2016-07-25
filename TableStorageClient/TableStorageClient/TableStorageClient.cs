@@ -9,60 +9,37 @@ namespace TableStorageClient
 {
     public class TableStorageClient
     {
-        string connectionString;
         CloudStorageAccount storageAccount;
         CloudTableClient tableClient;
 
         public TableStorageClient(string connectionString)
         {
-            this.connectionString = connectionString;
-            storageAccount = CloudStorageAccount.Parse(this.connectionString);
+            storageAccount = CloudStorageAccount.Parse(connectionString);
             tableClient = storageAccount.CreateCloudTableClient();
         }
 
         public void CreateTable(string tableReferenceName)
         {
-            // Retrieve the storage account from the connection string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.connectionString);
-            // Create the table client.
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-            // Retrieve a reference to the table.
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
-            // Create the table if it doesn't exist.
             table.CreateIfNotExists();
         }
 
         public TableResult InsertRecord(string tableReferenceName, TableEntity record)
         {
-            // Create the CloudTable object that represents the "people" table.
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
-
-            // Create the TableOperation object that inserts the customer entity.
             TableOperation insertOperation = TableOperation.Insert(record);
-
             TableResult result = table.Execute(insertOperation);
 
             return result;
         }
 
-        public List<TableEntity> GetRecordsInPartition(string tableReferenceName, string partitionName)
+        public List<EventTable> GetEventRecordsInPartition(string tableReferenceName, string partitionName)
         {
-            // Retrieve the storage account from the connection string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.connectionString);
-
-            // Create the table client.
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-
-            // Create the CloudTable object that represents the "people" table.
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
+            TableQuery<EventTable> query = new TableQuery<EventTable>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName));
+            List<EventTable> entities = new List<EventTable>();
 
-            // Construct the query operation for all customer entities where PartitionKey="Smith".
-            TableQuery<TableEntity> query = new TableQuery<TableEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName));
-
-            List<TableEntity> entities = new List<TableEntity>();
-
-            // Print the fields for each customer.
-            foreach (TableEntity entity in table.ExecuteQuery<TableEntity>(query))
+            foreach (EventTable entity in table.ExecuteQuery<EventTable>(query))
             {
                 entities.Add(entity);
             }
@@ -70,28 +47,50 @@ namespace TableStorageClient
             return entities;
         }
 
-        public List<TableEntity> GetRecordsByPartitionAndSubkey(string tableReferenceName, string partitionName, string subKeyName)
+        public List<EventTable> GetEventRecordsByPartitionAndSubkey(string tableReferenceName, string partitionName, string subKeyName)
         {
-            // Retrieve the storage account from the connection string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.connectionString);
-
-            // Create the table client.
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-
-            // Create the CloudTable object that represents the "people" table.
             CloudTable table = tableClient.GetTableReference(tableReferenceName);
 
-            // Create the table query.
-            TableQuery<TableEntity> rangeQuery = new TableQuery<TableEntity>().Where(
+            TableQuery<EventTable> rangeQuery = new TableQuery<EventTable>().Where(
                 TableQuery.CombineFilters(
                     TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName),
                     TableOperators.And,
                     TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, subKeyName)));
 
-            List<TableEntity> entities = new List<TableEntity>();
+            List<EventTable> entities = new List<EventTable>();
 
-            // Print the fields for each customer.
-            foreach (TableEntity entity in table.ExecuteQuery(rangeQuery))
+            foreach (EventTable entity in table.ExecuteQuery(rangeQuery))
+            {
+                entities.Add(entity);
+            }
+
+            return entities;
+        }
+
+        public List<ActionTable> GetAcionRecordsInPartition(string tableReferenceName, string partitionName)
+        {
+            CloudTable table = tableClient.GetTableReference(tableReferenceName);
+            TableQuery<ActionTable> query = new TableQuery<ActionTable>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName));
+            List<ActionTable> entities = new List<ActionTable>();
+            foreach (ActionTable entity in table.ExecuteQuery<ActionTable>(query))
+            {
+                entities.Add(entity);
+            }
+
+            return entities;
+        }
+
+        public List<ActionTable> GetActionRecordsByPartitionAndSubkey(string tableReferenceName, string partitionName, string subKeyName)
+        {
+            CloudTable table = tableClient.GetTableReference(tableReferenceName);
+            TableQuery<ActionTable> rangeQuery = new TableQuery<ActionTable>().Where(
+                TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionName),
+                    TableOperators.And,
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, subKeyName)));
+
+            List<ActionTable> entities = new List<ActionTable>();
+            foreach (ActionTable entity in table.ExecuteQuery(rangeQuery))
             {
                 entities.Add(entity);
             }

@@ -78,8 +78,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionTableEntity.cs" />
-    <Compile Include="EventTableEntity.cs" />
+    <Compile Include="ActionTable.cs" />
+    <Compile Include="EventTable.cs" />
     <Compile Include="TableStorageClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
