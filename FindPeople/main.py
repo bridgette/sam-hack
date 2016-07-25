@@ -95,7 +95,7 @@ def hog_detect(skimg):
     fd, hog_image = hog(image, orientations=8, pixels_per_cell=(16, 16),
                         cells_per_block=(1, 1), visualise=True)
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), sharex=True, sharey=True)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(32, 16), sharex=True, sharey=True)
     
     ax1.axis('off')
     ax1.imshow(image, cmap=plt.cm.gray)
@@ -110,21 +110,87 @@ def hog_detect(skimg):
     ax2.set_title('Histogram of Oriented Gradients')
     ax1.set_adjustable('box-forced')
     plt.show()
+    return hog_image
 
-        
-
-def main():
-    ifile = "sam_yoga_people.png"
-    print("Starting detection on image " + ifile)
+def sklearnHOG():
+    empty_imgfile = "sam_yoga_nopeople.png"
+    people_imgfile = "sam_yoga_people.png"
+    
+    print("Calculating the difference between" + empty_imgfile + " and " + people_imgfile)
     
     try:
-        i = io.imread(ifile)
+        ppl = io.imread(people_imgfile)
+        emp = io.imread(empty_imgfile)
     except Exception as e:
-        print "Can't load file " + ifile + ". Bummer."
+        print "Can't load file. Bummer."
         print str(e)
+        return 
     
-    hog_detect(i)
+    #differenced = calc_differences(ppl, emp)
+    print("Starting detection on image " + people_imgfile)   
+    
+    emp_hog = hog_detect(emp)
+    ppl_hog = hog_detect(ppl) 
+    return emp_hog, ppl_hog
 
     
+'''
+Runs HOG (Histogram Oriented Gradient) to generate features from the image.
+Uses OpenCV's baked-in SVM (support vector machine) to classify whether or not 
+a person is in a given image.
+Finds multiple people in the image by taking various-sized slices, detecting 
+person, and then aggregating them together.
+'''
+
+def openCvHog(imagePath): 
+    from imutils.object_detection import non_max_suppression
+    import numpy as np
+    import cv2
+        
+    # initialize the HOG descriptor/person detector
+    hog = cv2.HOGDescriptor()
+    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    
+    
+    # load the image and resize it to (1) reduce detection time
+    # and (2) improve detection accuracy
+    image = cv2.imread(imagePath)
+    #image = imutils.resize(image, width=min(400, image.shape[1]))
+    orig = image.copy()
+    print("Loaded image from file: " + imagePath)
+    
+    # detect people in the image
+    (rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
+    	padding=(8, 8), scale=1.05)
+    
+    # draw the original bounding boxes
+    for (x, y, w, h) in rects:
+    	cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 0, 255), 2)
+     
+    # apply non-maxima suppression to the bounding boxes using a
+    # fairly large overlap threshold to try to maintain overlapping
+    # boxes that are still people
+    rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+    pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
+     
+    # draw the final bounding boxes
+    for (xA, yA, xB, yB) in pick:
+    	cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
+    
+    # show some information on the number of bounding boxes
+    filename = imagePath[imagePath.rfind("/") + 1:]
+    print("[INFO] {}: {} original boxes, {} after suppression".format(
+    	filename, len(rects), len(pick)))
+     
+    # show the output images
+    cv2.imshow("Before NMS", orig)
+    cv2.imshow("After NMS", image)
+    cv2.waitKey(0)
+
+    
+    
 if __name__ == '__main__':
-    main()
+    #sklearnHOG()
+    people_imgfile = "sam_dog.png"
+    openCvHog(people_imgfile)
+    
