@@ -83,65 +83,6 @@ References
        pp. 91-110.
 '''
 
-import matplotlib.pyplot as plt
-from skimage.feature import hog
-from skimage import color, exposure, io
-
-
-def hog_detect(skimg):
-    print "Running histogram oriented detection..."
-    #image = color.rgb2gray(data.astronaut())
-    image = color.rgb2gray(skimg)
-    fd, hog_image = hog(image, orientations=8, pixels_per_cell=(16, 16),
-                        cells_per_block=(1, 1), visualise=True)
-    
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(32, 16), sharex=True, sharey=True)
-    
-    ax1.axis('off')
-    ax1.imshow(image, cmap=plt.cm.gray)
-    ax1.set_title('Input image')
-    ax1.set_adjustable('box-forced')
-    
-    # Rescale histogram for better display
-    hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 0.02))
-    
-    ax2.axis('off')
-    ax2.imshow(hog_image_rescaled, cmap=plt.cm.gray)
-    ax2.set_title('Histogram of Oriented Gradients')
-    ax1.set_adjustable('box-forced')
-    plt.show()
-    return hog_image
-
-def sklearnHOG():
-    empty_imgfile = "sam_yoga_nopeople.png"
-    people_imgfile = "sam_yoga_people.png"
-    
-    print("Calculating the difference between" + empty_imgfile + " and " + people_imgfile)
-    
-    try:
-        ppl = io.imread(people_imgfile)
-        emp = io.imread(empty_imgfile)
-    except Exception as e:
-        print "Can't load file. Bummer."
-        print str(e)
-        return 
-    
-    #differenced = calc_differences(ppl, emp)
-    print("Starting detection on image " + people_imgfile)   
-    
-    emp_hog = hog_detect(emp)
-    ppl_hog = hog_detect(ppl) 
-    return emp_hog, ppl_hog
-
-    
-'''
-Runs HOG (Histogram Oriented Gradient) to generate features from the image.
-Uses OpenCV's baked-in SVM (support vector machine) to classify whether or not 
-a person is in a given image.
-Finds multiple people in the image by taking various-sized slices, detecting 
-person, and then aggregating them together.
-'''
-
 def openCvHog(imagePath): 
     from imutils.object_detection import non_max_suppression
     import numpy as np
@@ -163,10 +104,16 @@ def openCvHog(imagePath):
     (rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
     	padding=(8, 8), scale=1.05)
     
-    # draw the original bounding boxes
+    i = 0
+    # draw the original bounding boxes and annotate with weights
     for (x, y, w, h) in rects:
     	cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 0, 255), 2)
-     
+        cv2.putText(orig, "weight: " + str(weights[i]), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255)
+        i += 1
+        
+    # filter out non-confident results from the classifier
+    rects = [rect for j, rect in enumerate(rects) if weights[j] > 1.0]
+    
     # apply non-maxima suppression to the bounding boxes using a
     # fairly large overlap threshold to try to maintain overlapping
     # boxes that are still people
@@ -181,16 +128,14 @@ def openCvHog(imagePath):
     filename = imagePath[imagePath.rfind("/") + 1:]
     print("[INFO] {}: {} original boxes, {} after suppression".format(
     	filename, len(rects), len(pick)))
-     
+         
     # show the output images
     cv2.imshow("Before NMS", orig)
     cv2.imshow("After NMS", image)
     cv2.waitKey(0)
-
     
     
 if __name__ == '__main__':
     #sklearnHOG()
     people_imgfile = "sam_dog.png"
     openCvHog(people_imgfile)
-    
