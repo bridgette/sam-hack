@@ -11,20 +11,11 @@ namespace ReportingWeb.Controllers
 {
     public class HomeController : Controller
     {
-        private string StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=cohenhackathon;AccountKey=2EIamWgLyH38CBBqJRAULJTvNOHlqRZiaeb/x16c7q23YJJtPqVI+vTmsyCj6+eUfeOajX7c6cjUkGHB0JrlMg==";
+        private string StorageConnectionString = "";
 
         public ActionResult Index()
         {
             Guid partitionId = Guid.NewGuid();
-
-            TableStorageClient.TableStorageClient tableClient = new TableStorageClient.TableStorageClient(this.StorageConnectionString);
-            tableClient.CreateTable("Action");
-
-            ActionTableEntity e = new ActionTableEntity(partitionId, Guid.NewGuid());
-            e.ActionType = "asd";
-            e.EventName = "asdasd";
-
-            tableClient.InsertRecord("Action", e);
 
             return View();
         }
