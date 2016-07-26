@@ -2,13 +2,14 @@
     ViewBag.Title = "Home Page";
 }
 
-@section Scripts {
+<link href="~/Content/jquery-ui-1.12.0.custom/jquery-ui.min.css" rel="stylesheet" />
 
+@section Scripts {
     <script src="http://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="~/Content/CustomCharting.js"></script>
     <script src="~/Content/JSDateFormatter.js"></script>
-
+    <script src="~/Content/jquery-ui-1.12.0.custom/jquery-ui.js"></script>
+    
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -32,6 +33,7 @@
             $('.datepicker').datepicker();
 
             $('#inputForm [name="EventId"]').bind('change', getDataDrawChart);
+            $('#inputForm input').bind('change', getDataDrawChart);
             $('#searchButton').bind('click', getDataDrawChart);
             $('#downloadCSV').bind('click', exportActionTable);
         });
@@ -42,6 +44,7 @@
 <br /><br /><br />
 
 <div class="container">
+
     <form id="inputForm">
         <div class="row">
             <div class="col-md-3">
@@ -64,6 +67,34 @@
             <div class="col-md-2">
                 <label></label>
                 <button id="downloadCSV" class="form-control" style="display: none;" type="button">Download as CSV</button>
+            </div>
+        </div>
+        <div class="row" id="statistics" style="display: none;">
+            <div class="col-md-4">
+                <table class="table">
+                    <tr>
+                        <th>Statistics</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Total Attendees:
+                        </td>
+                        <td id="totalAttendees"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Highest Capacity:
+                        </td>
+                        <td id="highestCapacity"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Lowest Capacity:
+                        </td>
+                        <td id="lowestCapacity"></td>
+                    </tr>
+                </table>
             </div>
         </div>
     </form>

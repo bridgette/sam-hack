@@ -5,10 +5,6 @@ using System.Web.Mvc;
 using StorageClient;
 using System.Web.Script.Serialization;
 using ReportingWeb.ExportFiles;
-using System.Web;
-using System.IO;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage;
 
 namespace ReportingWeb.Controllers
 {
@@ -22,7 +18,6 @@ namespace ReportingWeb.Controllers
         /// </summary>
         private TableStorageClient tableClient;
         private BlobStorageClient blobClient;
-
 
         /// <summary>
         /// Instantiate controller
@@ -112,6 +107,9 @@ namespace ReportingWeb.Controllers
             return tableClient.GetAllPartitions(this.EventTableName).OrderBy(x => x.RowKey).ToList();
         }
 
+        /// <summary>
+        /// Export relevant action records to csv
+        /// </summary>
         [HttpGet]
         public ActionResult ExportActionTable(string eventId, string startDate, string endDate)
         {
@@ -121,6 +119,9 @@ namespace ReportingWeb.Controllers
             return Redirect(blobPath);
         }
 
+        /// <summary>
+        /// Export entire event table to csv
+        /// </summary>
         [HttpGet]
         public ActionResult ExportEventTable()
         {

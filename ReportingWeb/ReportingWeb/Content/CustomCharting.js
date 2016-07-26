@@ -36,16 +36,30 @@ function getDataDrawChart() {
             var times = [];
 
             var currentAttendeeCount = 0;
-            var attendeeCounts = []
+            var attendeeCounts = [];
+
+            var totalIn = 0;
+            var maxCapacity = 0;
+            var lowestCapacity = Number.MAX_SAFE_INTEGER;
 
             $(data).each(function (index) {
                 time = new Date(data[index].RowKey)
 
                 var countIn = data[index].CountIn;
+                totalIn += countIn;
+
                 var countOut = data[index].CountOut;
 
                 currentAttendeeCount += countIn;
                 currentAttendeeCount -= countOut;
+
+                if (currentAttendeeCount > maxCapacity) {
+                    maxCapacity = currentAttendeeCount;
+                }
+
+                if (currentAttendeeCount < lowestCapacity) {
+                    lowestCapacity = currentAttendeeCount;
+                }
 
                 attendeeCounts.push(currentAttendeeCount);
 
@@ -72,13 +86,13 @@ function getDataDrawChart() {
 
             renderChart('#chartContainer2', 'Total Attendees Over Time', series2, times);
 
-            showCSVButton();
+            $('#downloadCSV').show();
+            $('#statistics').show();
+            $('#totalAttendees').text(totalIn);
+            $('#highestCapacity').text(maxCapacity);
+            $('#lowestCapacity').text(lowestCapacity);
         }
     })
-}
-
-function showCSVButton() {
-    $('#downloadCSV').show();
 }
 
 function renderChart(cssSelector, title, series, times) {
