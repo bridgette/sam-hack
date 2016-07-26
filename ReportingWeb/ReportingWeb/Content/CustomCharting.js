@@ -90,8 +90,8 @@ function renderChart(cssSelector, title, series, times) {
             categories: times,
             labels: {
                 formatter: function () {
-                    console.log(this.value);
-                    return '$' + this.axis.defaultLabelFormatter.call(this);
+                    var date = new Date(this.value);
+                    return date.format();
                 }
             }
         },
@@ -112,5 +112,6 @@ function renderChart(cssSelector, title, series, times) {
 }
 
 function tooltipFormatter() {
-    return '<b>' + new Date(this.x) + ':</b> ' + this.series.name + ' ' + this.y + '</b>';
+    var date = new Date(this.x);
+    return '<b>' + date.format() + ':</b> ' + this.series.name + ' ' + this.y + '</b>';
 }

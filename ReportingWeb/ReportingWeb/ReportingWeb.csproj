@@ -238,6 +238,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\CustomCharting.js" />
     <Content Include="Content\highcharts.js" />
+    <Content Include="Content\JSDateFormatter.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
