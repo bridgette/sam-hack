@@ -34,7 +34,6 @@
 
             $('#inputForm [name="EventId"]').bind('change', getDataDrawChart);
             $('#inputForm input').bind('change', getDataDrawChart);
-            $('#searchButton').bind('click', getDataDrawChart);
             $('#downloadCSV').bind('click', exportActionTable);
         });
 
@@ -47,7 +46,7 @@
 
     <form id="inputForm">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="control-label">Event:
                     <select name="EventId" class="form-control">
                         <option></option>
@@ -59,10 +58,6 @@
             </div>
             <div class="col-md-3">
                 <label class="control-label">End Date: <input type="datetime" name="EndDate" class="datepicker form-control" /></label>
-            </div>
-            <div class="col-md-2">
-                <label></label>
-                <button id="searchButton" class="form-control" type="button">Search</button>
             </div>
             <div class="col-md-2">
                 <label></label>

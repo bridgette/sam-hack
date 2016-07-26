@@ -75,8 +75,7 @@ namespace ReportingWeb.Controllers
 
             if (Session[cacheKey] != null)
             {
-                //TODO uncomment after development
-                //return Session[cacheKey] as List<ActionTable>;
+                return Session[cacheKey] as List<ActionTable>;
             }
 
             List<ActionTable> records = tableClient.GetActionRecordsInPartition(this.ActionTableName, eventId);
