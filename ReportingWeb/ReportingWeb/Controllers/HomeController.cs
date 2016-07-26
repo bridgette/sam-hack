@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using StorageClient;
 using System.Web.Script.Serialization;
 using ReportingWeb.ExportFiles;
+using System.Collections;
 
 namespace ReportingWeb.Controllers
 {
@@ -113,7 +114,19 @@ namespace ReportingWeb.Controllers
         public ActionResult ExportActionTable(string eventId, string startDate, string endDate)
         {
             List<ActionTable> records = this.GetDataAndCache(eventId, startDate, endDate);
-            string csv = new CsvExport<ActionTable>(records).Export();
+
+            EventTable eventRecord = this.GetEventsInner().Where(x => x.PartitionKey == eventId).First();
+
+            List<ArticleCSV> articles = records.Select(record => new ArticleCSV()
+            {
+                CountIn = record.CountIn,
+                CountOut = record.CountOut,
+                EventId = eventRecord.PartitionKey,
+                EventName = eventRecord.RowKey,
+                TimeStamp = record.RowKey
+            }).ToList();
+
+            string csv = new CsvExport<ArticleCSV>(articles).Export();
             string blobPath = blobClient.UploadBlob(csv);
             return Redirect(blobPath);
         }
@@ -124,8 +137,13 @@ namespace ReportingWeb.Controllers
         [HttpGet]
         public ActionResult ExportEventTable()
         {
-            List<EventTable> events = GetEventsInner();
-            string csv = new CsvExport<EventTable>(events).Export();
+            List<EventCSV> events = this.GetEventsInner().Select(x => new EventCSV()
+            {
+                EventId = x.PartitionKey,
+                EventName = x.RowKey
+            }).ToList();
+
+            string csv = new CsvExport<EventCSV>(events).Export();
             string blobPath = blobClient.UploadBlob(csv);
             return Redirect(blobPath);
         }
@@ -202,6 +220,21 @@ namespace ReportingWeb.Controllers
             tableClient.DeleteTable(this.ActionTableName);
 
             return RedirectToAction("Index");
+        }
+
+        class ArticleCSV
+        {
+            public int CountIn { get; set; }
+            public int CountOut { get; set; }
+            public string EventId { get; set; }
+            public string EventName { get; set; }
+            public string TimeStamp { get; set; }
+        }
+
+        class EventCSV
+        {
+            public string EventId { get; set; }
+            public string EventName { get; set; }
         }
     }
 }

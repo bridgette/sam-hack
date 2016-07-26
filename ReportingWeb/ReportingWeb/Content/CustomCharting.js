@@ -90,6 +90,10 @@ function getDataDrawChart() {
             $('#statistics').show();
             $('#totalAttendees').text(totalIn);
             $('#highestCapacity').text(maxCapacity);
+            if (lowestCapacity == Number.MAX_SAFE_INTEGER) {
+                lowestCapacity = 0;
+            }
+
             $('#lowestCapacity').text(lowestCapacity);
         }
     })
